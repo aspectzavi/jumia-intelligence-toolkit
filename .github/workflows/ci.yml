@@ -36,13 +36,13 @@ jobs:
 
           pip install mypy
 
-      - name: Lint
-
-        run: ruff check .
-
       - name: Ruff lint
 
         run: ruff check . --fix
+
+      - name: Lint
+
+        run: ruff check .
 
       - name: Format Check
 
