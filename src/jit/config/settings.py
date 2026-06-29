@@ -39,7 +39,10 @@ class Settings(BaseSettings):
     user_agent: str = Field(default="")
 
     # Logging
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(default="INFO")
+    log_level: str = Field(default="INFO")
+    log_file: str = Field(default="logs/jit.log")
+    log_rotation: str = Field(default="10 MB")
+    log_retention: str = Field(default="30 days")
 
     # Storage
     state_path: str = Field(default="data/playwright/storage_state.json")
