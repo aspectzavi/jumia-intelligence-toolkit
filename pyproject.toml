@@ -44,6 +44,7 @@ dependencies = [
     "playwright>=1.54",
     "httpx>=0.28",
     "pydantic>=2.11",
+    "pydantic-settings>=2.14.2",
     "python-dotenv>=1.1",
     "loguru>=0.7",
     "orjson>=3.11",
