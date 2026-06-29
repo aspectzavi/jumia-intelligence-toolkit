@@ -1,4 +1,4 @@
-from jit.configs.settings import settings
+from jit.config.settings import settings
 
 
 def test_base_url():
