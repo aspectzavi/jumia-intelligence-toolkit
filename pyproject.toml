@@ -1,0 +1,136 @@
+[build-system]
+requires = [
+    "setuptools>=75.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jumia-intelligence-toolkit"
+version = "0.1.0"
+description = "A production-grade Playwright-powered marketplace intelligence toolkit for Jumia."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Kevin Kamau" }
+]
+
+keywords = [
+    "jumia",
+    "scraper",
+    "playwright",
+    "automation",
+    "crawler",
+    "marketplace",
+    "price-tracker",
+    "data-mining",
+    "intelligence"
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed"
+]
+
+dependencies = [
+    "playwright>=1.54",
+    "httpx>=0.28",
+    "pydantic>=2.11",
+    "python-dotenv>=1.1",
+    "loguru>=0.7",
+    "orjson>=3.11",
+    "beautifulsoup4>=4.13",
+    "lxml>=6.0",
+    "rich>=14.0",
+    "tenacity>=9.1"
+]
+
+[project.optional-dependencies]
+
+dev = [
+    "pytest>=8.4",
+    "pytest-asyncio>=1.1",
+    "pytest-cov>=6.2",
+    "ruff>=0.12",
+    "mypy>=1.17",
+    "pre-commit>=4.2",
+    "black>=25.1",
+    "types-requests"
+]
+
+docs = [
+    "mkdocs",
+    "mkdocs-material"
+]
+
+[project.urls]
+Homepage = "https://github.com/YOUR_USERNAME/jumia-intelligence-toolkit"
+Repository = "https://github.com/YOUR_USERNAME/jumia-intelligence-toolkit"
+Issues = "https://github.com/YOUR_USERNAME/jumia-intelligence-toolkit/issues"
+
+[project.scripts]
+jit = "jit.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+include = ["jit*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "N",
+    "SIM"
+]
+
+ignore = [
+    "E501"
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+
+testpaths = [
+    "tests"
+]
+
+asyncio_mode = "auto"
+
+[tool.mypy]
+
+python_version = "3.12"
+
+strict = true
+
+ignore_missing_imports = true
+
+warn_unused_configs = true
+
+show_error_codes = true
+
+namespace_packages = true

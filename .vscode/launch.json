@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run JIT",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "jit.cli",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": true
+        }
+    ]
+}
