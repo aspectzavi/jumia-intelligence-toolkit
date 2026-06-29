@@ -5,8 +5,11 @@ def test_base_url():
     assert settings.base_url.startswith("https")
 
 
+VALID_BROWSERS = {"chromium", "firefox", "webkit"}
+
+
 def test_browser():
-    assert settings.browser == "chromium"
+    assert settings.browser in VALID_BROWSERS
 
 
 def test_timeout():

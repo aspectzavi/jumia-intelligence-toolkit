@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,7 +20,7 @@ class Settings(BaseSettings):
 
     # Browser
     browser: str = Field(default="chromium")
-    headless: bool = Field(default=False)
+    headless: bool = Field(default=True)
     slow_mo: int = Field(default=200)
     timeout: int = Field(default=30000)
 
@@ -38,7 +39,7 @@ class Settings(BaseSettings):
     user_agent: str = Field(default="")
 
     # Logging
-    log_level: str = Field(default="INFO")
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(default="INFO")
 
     # Storage
     state_path: str = Field(default="data/playwright/storage_state.json")
