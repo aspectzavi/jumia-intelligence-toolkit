@@ -1,21 +1,20 @@
 import asyncio
 
 from jit.browser import BrowserManager
-from jit.browser.context import create_context
 from jit.config.settings import settings
 
 
 async def main():
-    async with BrowserManager() as manager:
-        context = await create_context(manager.browser)
 
-        page = await context.new_page()
+    async with BrowserManager() as browser:
 
-        await page.goto(settings.base_url)
+        async with browser.new_context() as context:
 
-        await page.wait_for_timeout(50000)
+            page = await context.new_page()
 
-        await context.close()
+            await page.goto(settings.base_url)
+
+            await page.wait_for_timeout(5000)
 
 
 if __name__ == "__main__":
