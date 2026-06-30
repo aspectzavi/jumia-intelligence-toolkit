@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from types import TracebackType
+from typing import TYPE_CHECKING
+
 from playwright.async_api import (
     Browser,
     BrowserType,
@@ -9,7 +12,6 @@ from playwright.async_api import (
 
 from jit.config.settings import settings
 from jit.utils import logger
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .context import ContextManager
@@ -168,9 +170,9 @@ class BrowserManager:
 
     async def __aexit__(
         self,
-        exc_type,
-        exc_val,
-        exc_tb,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
     ) -> None:
         """
         Exit the async context manager.
