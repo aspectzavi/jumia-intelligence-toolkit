@@ -5,70 +5,204 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyd
+*.dll
 
+# ========================================
 # Virtual Environments
+# ========================================
+
 .venv/
 venv/
 env/
 ENV/
 
-# Distribution
+# ========================================
+# Python Version Managers
+# ========================================
+
+.python-version
+
+# ========================================
+# Distribution / Packaging
+# ========================================
+
 build/
 dist/
+site/
 *.egg-info/
+.eggs/
+*.egg
+*.whl
+pip-wheel-metadata/
 
-# Pytest
+# ========================================
+# Testing
+# ========================================
+
 .pytest_cache/
-
-# MyPy
-.mypy_cache/
-
-# Ruff
-.ruff_cache/
-
-# Coverage
+.cache/
 .coverage
+.coverage.*
 htmlcov/
 
+# ========================================
+# Type Checking
+# ========================================
+
+.mypy_cache/
+
+# ========================================
+# Linting / Formatting
+# ========================================
+
+.ruff_cache/
+
+# ========================================
+# Jupyter
+# ========================================
+
+.ipynb_checkpoints/
+
+# ========================================
 # IDEs
+# ========================================
+
 .vscode/*
 !.vscode/settings.json
-!.vscode/extensions.json
 !.vscode/launch.json
+!.vscode/extensions.json
 
 .idea/
 
-# OS
+# ========================================
+# Operating System
+# ========================================
+
 .DS_Store
 Thumbs.db
+Desktop.ini
 
+# ========================================
 # Environment Variables
-.env
+# ========================================
 
+.env
+.env.*
+!.env.example
+
+# ========================================
 # Logs
+# ========================================
+
 logs/
 *.log
 
+# ========================================
+# Databases
+# ========================================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# ========================================
 # Runtime Data
-data/cache/
-data/playwright/downloads/
-data/playwright/traces/
+# ========================================
+
+# Cache
+data/cache/*
+!data/cache/.gitkeep
+
+# Raw scraped data
+data/raw/*
+!data/raw/.gitkeep
+
+# Processed data
+data/processed/*
+!data/processed/.gitkeep
+
+# Exported data
+data/exports/*
+!data/exports/.gitkeep
+
+# Images
+data/images/*
+!data/images/.gitkeep
+
+# ========================================
+# Playwright Runtime
+# ========================================
+
+# Browser session
 data/playwright/storage_state.json
 data/playwright/cookies.json
 
-# Browser Videos
-data/captures/videos/
+# Downloads
+data/playwright/downloads/
+data/playwright/downloads/*
 
-# Screenshots
-data/captures/screenshots/
+# Traces
+data/playwright/traces/
+<<<<<<< HEAD
+data/playwright/storage_state.json
+data/playwright/cookies.json
+=======
+data/playwright/traces/*
+>>>>>>> 4869cad (fix(ci): adjust workflow for Ruff lint auto-fix, improve BrowserManager and ContextManager lifecycle handling)
 
-# Temporary Files
-*.tmp
-*.bak
+# HAR files
+*.har
 
-# Playwright
+# Trace archives
+*.trace.zip
+
+# Browser binaries (if using PLAYWRIGHT_BROWSERS_PATH)
+.playwright/
+
+# Playwright reports
 playwright-report/
 test-results/
 
-# Jupyter
-.ipynb_checkpoints/
+# ========================================
+# Captures
+# ========================================
+
+data/captures/videos/
+data/captures/screenshots/
+
+# ========================================
+# Network Intelligence
+# ========================================
+
+data/network/
+traffic/
+captures/
+
+# ========================================
+# Temporary Files
+# ========================================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# ========================================
+# Archives
+# ========================================
+
+*.zip
+*.tar
+*.gz
+*.7z
+
+# ========================================
+# Project-Specific
+# ========================================
+
+# Keep empty runtime directories
+!data/**/.gitkeep

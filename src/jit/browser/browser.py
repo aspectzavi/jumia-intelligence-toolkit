@@ -9,6 +9,17 @@ from playwright.async_api import (
 
 from jit.config.settings import settings
 from jit.utils import logger
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .context import ContextManager
+
+
+SUPPORTED_BROWSERS = {
+    "chromium",
+    "firefox",
+    "webkit",
+}
 
 
 class BrowserManager:
@@ -26,15 +37,43 @@ class BrowserManager:
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
 
+    @property
+    def browser(self) -> Browser:
+        """
+        Return the active Playwright browser.
+
+        Raises:
+            RuntimeError: If the browser has not been started.
+        """
+        if self._browser is None:
+            raise RuntimeError(
+                "Browser has not been started."
+            )
+
+        return self._browser
+
     async def start(self) -> Browser:
         """
         Start Playwright and launch the configured browser.
         """
 
+        if self._browser is not None:
+            logger.warning(
+                "Browser is already running."
+            )
+            return self._browser
+
         logger.info("Starting Playwright...")
 
         try:
             self._playwright = await async_playwright().start()
+
+            if settings.browser not in SUPPORTED_BROWSERS:
+                raise ValueError(
+                    f"Unsupported browser '{settings.browser}'. "
+                    f"Supported browsers: "
+                    f"{', '.join(sorted(SUPPORTED_BROWSERS))}"
+                )
 
             browser_type: BrowserType = getattr(
                 self._playwright,
@@ -58,16 +97,24 @@ class BrowserManager:
             )
 
             if self._playwright is not None:
-                await self._playwright.stop()
+                try:
+                    await self._playwright.stop()
+                except Exception:
+                    logger.exception(
+                        "Failed to stop Playwright during cleanup."
+                    )
+
+            self._browser = None
+            self._playwright = None
 
             raise
 
-    def new_context(self):
+    def new_context(self) -> ContextManager:
         """
-        Return a ContextManager.
+        Return a managed browser context.
 
-        The browser context itself is created when entering the
-        async context manager.
+        The actual BrowserContext is created when entering
+        the async context manager.
         """
 
         if self._browser is None:
@@ -105,9 +152,17 @@ class BrowserManager:
                 "Error while stopping Playwright."
             )
 
+        finally:
+            self._browser = None
+            self._playwright = None
+
         logger.success("Browser closed.")
 
     async def __aenter__(self) -> BrowserManager:
+        """
+        Enter the async context manager.
+        """
+
         await self.start()
         return self
 
@@ -117,4 +172,8 @@ class BrowserManager:
         exc_val,
         exc_tb,
     ) -> None:
+        """
+        Exit the async context manager.
+        """
+
         await self.stop()
