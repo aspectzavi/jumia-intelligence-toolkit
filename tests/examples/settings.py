@@ -1,4 +1,4 @@
-from jit.configs.settings import settings
+from jit.config.settings import settings
 
 print("Configuration Loaded")
 print("-" * 40)
