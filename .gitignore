@@ -53,6 +53,8 @@ logs/
 data/cache/
 data/playwright/downloads/
 data/playwright/traces/
+data/playwright/storage_state.json
+data/playwright/cookies.json
 
 # Browser Videos
 data/captures/videos/
