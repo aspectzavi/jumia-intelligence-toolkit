@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import AsyncMock
-from unittest.mock import Mock
-from unittest.mock import PropertyMock
-from unittest.mock import patch
+from unittest.mock import AsyncMock, Mock, PropertyMock, patch
 
 import pytest
 
@@ -143,10 +140,9 @@ async def test_start_propagates_exception(
             "is_valid",
             new_callable=PropertyMock,
             return_value=False,
-        ),
+        ),pytest.raises(RuntimeError)
     ):
-        with pytest.raises(RuntimeError):
-            await manager.start()
+        await manager.start()
 
 
 @pytest.mark.asyncio
