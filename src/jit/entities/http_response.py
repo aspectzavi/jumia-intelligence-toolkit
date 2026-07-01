@@ -31,7 +31,7 @@ class HttpResponse:
 
     content_length: int | None = None
 
-    body: bytes | str | None = None
+    body: Any = None
 
     redirected: bool = False
 
