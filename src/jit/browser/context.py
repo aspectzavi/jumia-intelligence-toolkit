@@ -3,9 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from types import TracebackType
 
-from playwright.async_api import Browser
-from playwright.async_api import BrowserContext
-from playwright.async_api import Page
+from playwright.async_api import Browser, BrowserContext, Page
 
 from jit.browser.session import SessionManager
 from jit.config.settings import settings
