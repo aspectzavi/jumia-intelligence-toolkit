@@ -3,7 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 from types import TracebackType
 
-from playwright.async_api import Browser, BrowserContext, Page
+from playwright.async_api import Browser
+from playwright.async_api import BrowserContext
+from playwright.async_api import Page
 
 from jit.browser.session import SessionManager
 from jit.config.settings import settings
@@ -58,6 +60,7 @@ class ContextManager:
 
         if self._session.is_valid:
             logger.info("Loading storage state...")
+
             storage_state = str(self._session.state_path)
         else:
             logger.info("No valid storage state found. Starting a fresh browser context.")
@@ -92,7 +95,7 @@ class ContextManager:
 
     async def stop(self) -> None:
         """
-        Save browser state and close the context.
+        Save session state and close the browser context.
         """
 
         if self._context is None:
