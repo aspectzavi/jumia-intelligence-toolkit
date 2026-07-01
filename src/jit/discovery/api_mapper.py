@@ -1,0 +1,93 @@
+from __future__ import annotations
+
+from collections.abc import Iterator
+
+from jit.discovery.endpoint_detector import EndpointDetector
+from jit.discovery.schema_detector import SchemaDetector
+from jit.entities.api_endpoint import ApiEndpoint
+from jit.entities.http_request import HttpRequest
+from jit.entities.http_response import HttpResponse
+
+
+class ApiMapper:
+    """
+    High-level API discovery orchestrator.
+
+    Coordinates endpoint detection and schema inference.
+    """
+
+    def __init__(self) -> None:
+        self._detector = EndpointDetector()
+
+    def add(
+        self,
+        request: HttpRequest,
+        response: HttpResponse | None = None,
+    ) -> ApiEndpoint:
+        """
+        Add a captured request and optionally its response.
+
+        Also infers and merges request schemas into the endpoint.
+        """
+
+        endpoint = self._detector.add_request(request)
+
+        # -------------------------
+        # Schema inference (request)
+        # -------------------------
+        if isinstance(request.body, dict):
+            schema = SchemaDetector.detect(request.body)
+
+            if endpoint.request_schema is None:
+                endpoint.request_schema = schema
+            else:
+                endpoint.request_schema = SchemaDetector.merge(
+                    endpoint.request_schema,
+                    schema,
+                )
+
+        # -------------------------
+        # Attach response
+        # -------------------------
+        if response is not None:
+            self._detector.add_response(response)
+
+        return endpoint
+
+    def get(
+        self,
+        method: str,
+        path: str,
+    ) -> ApiEndpoint | None:
+        """
+        Retrieve an endpoint.
+        """
+
+        return self._detector.get(
+            method,
+            path,
+        )
+
+    @property
+    def endpoints(self) -> list[ApiEndpoint]:
+        """
+        Return all discovered endpoints.
+        """
+
+        return self._detector.all()
+
+    def clear(self) -> None:
+        """
+        Remove every discovered endpoint.
+        """
+
+        self._detector.clear()
+
+    def __len__(self) -> int:
+        return len(self._detector)
+
+    def __iter__(self) -> Iterator[ApiEndpoint]:
+        return iter(self._detector)
+
+    def __str__(self) -> str:
+        return f"ApiMapper({len(self)} endpoints)"
