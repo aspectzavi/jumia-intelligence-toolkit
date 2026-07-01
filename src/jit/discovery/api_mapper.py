@@ -52,6 +52,20 @@ class ApiMapper:
         if response is not None:
             self._detector.add_response(response)
 
+            if (
+                response is not None
+                and isinstance(response.body, dict)
+            ):
+                schema = SchemaDetector.detect(response.body)
+
+                if endpoint.response_schema is None:
+                    endpoint.response_schema = schema
+                else:
+                    endpoint.response_schema = SchemaDetector.merge(
+                        endpoint.response_schema,
+                        schema,
+                    )
+
         return endpoint
 
     def get(
