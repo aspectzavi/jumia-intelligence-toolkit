@@ -6,6 +6,7 @@ from typing import Any
 from jit.core.enums import RequestType
 from jit.entities.http_request import HttpRequest
 from jit.entities.http_response import HttpResponse
+from jit.entities.schema import Schema
 
 
 @dataclass(slots=True)
@@ -25,6 +26,10 @@ class ApiEndpoint:
     requests: list[HttpRequest] = field(default_factory=list)
 
     responses: list[HttpResponse] = field(default_factory=list)
+
+    request_schema: Schema | None = None
+
+    response_schema: Schema | None = None
 
     tags: set[str] = field(default_factory=set)
 
@@ -102,6 +107,16 @@ class ApiEndpoint:
             "request_type": self.request_type.value,
             "description": self.description,
             "tags": sorted(self.tags),
+            "request_schema": (
+                self.request_schema.to_dict()
+                if self.request_schema is not None
+                else None
+            ),
+            "response_schema": (
+                self.response_schema.to_dict()
+                if self.response_schema is not None
+                else None
+            ),
             "requests": [
                 request.to_dict()
                 for request in self.requests
@@ -129,6 +144,16 @@ class ApiEndpoint:
                     "request_type",
                     RequestType.API.value,
                 )
+            ),
+            request_schema=(
+                Schema.from_dict(data["request_schema"])
+                if data.get("request_schema")
+                else None
+            ),
+            response_schema=(
+                Schema.from_dict(data["response_schema"])
+                if data.get("response_schema")
+                else None
             ),
             description=data.get("description"),
         )

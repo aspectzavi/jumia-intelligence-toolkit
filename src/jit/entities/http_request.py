@@ -37,6 +37,8 @@ class HttpRequest:
 
     post_data: str | None = None
 
+    body: Any = None
+
     headers: HeaderCollection = field(default_factory=HeaderCollection)
 
     cookies: list[HttpCookie] = field(default_factory=list)
@@ -174,6 +176,7 @@ class HttpRequest:
             "frame_url": self.frame_url,
             "is_navigation": self.is_navigation,
             "post_data": self.post_data,
+            "body": self.body,
             "headers": self.headers.to_dict(),
             "cookies": [cookie.to_dict() for cookie in self.cookies],
             "timing": self.timing.to_dict(),
@@ -203,6 +206,7 @@ class HttpRequest:
                 False,
             ),
             post_data=data.get("post_data"),
+            body=data.get("body"),
             timing=RequestTiming.from_dict(data["timing"]),
         )
 
