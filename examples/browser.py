@@ -7,7 +7,6 @@ from jit.config.settings import settings
 async def main():
 
     async with BrowserManager() as browser, browser.new_context() as context:
-
         page = await context.new_page()
 
         await page.goto(settings.base_url)

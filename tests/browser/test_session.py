@@ -153,9 +153,7 @@ async def test_save_calls_storage_state(tmp_path):
 
         await manager.save(context)
 
-        context.storage_state.assert_awaited_once_with(
-            path=str(path)
-        )
+        context.storage_state.assert_awaited_once_with(path=str(path))
 
 
 @pytest.mark.asyncio
@@ -192,9 +190,7 @@ async def test_save_propagates_storage_state_error(tmp_path):
 
         context = AsyncMock()
 
-        context.storage_state.side_effect = RuntimeError(
-            "failed"
-        )
+        context.storage_state.side_effect = RuntimeError("failed")
 
         with pytest.raises(RuntimeError):
             await manager.save(context)
