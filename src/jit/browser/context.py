@@ -36,7 +36,9 @@ class ContextManager:
         """
 
         if self._context is None:
-            raise RuntimeError("Context has not been started.")
+            raise RuntimeError(
+                "Context has not been started."
+            )
 
         return self._context
 
@@ -46,7 +48,9 @@ class ContextManager:
         """
 
         if self._context is not None:
-            logger.warning("Context is already running.")
+            logger.warning(
+                "Context is already running."
+            )
             return self._context
 
         logger.info("Creating browser context...")
@@ -61,9 +65,14 @@ class ContextManager:
         if self._session.is_valid:
             logger.info("Loading storage state...")
 
-            storage_state = str(self._session.state_path)
+            storage_state = str(
+                self._session.state_path
+            )
         else:
-            logger.info("No valid storage state found. Starting a fresh browser context.")
+            logger.info(
+                "No valid storage state found. "
+                "Starting a fresh browser context."
+            )
 
         try:
             self._context = await self._browser.new_context(
@@ -78,12 +87,16 @@ class ContextManager:
                 storage_state=storage_state,
             )
 
-            logger.success("Context created.")
+            logger.success(
+                "Context created."
+            )
 
             return self._context
 
         except Exception:
-            logger.exception("Failed to create browser context.")
+            logger.exception(
+                "Failed to create browser context."
+            )
             raise
 
     async def new_page(self) -> Page:
@@ -102,25 +115,37 @@ class ContextManager:
             return
 
         try:
-            logger.info("Saving browser state...")
+            logger.info(
+                "Saving browser state..."
+            )
 
-            await self._session.save(self._context)
+            await self._session.save(
+                self._context
+            )
 
         except Exception:
-            logger.exception("Failed to save storage state.")
+            logger.exception(
+                "Failed to save storage state."
+            )
 
         try:
-            logger.info("Closing context...")
+            logger.info(
+                "Closing context..."
+            )
 
             await self._context.close()
 
         except Exception:
-            logger.exception("Failed to close browser context.")
+            logger.exception(
+                "Failed to close browser context."
+            )
 
         finally:
             self._context = None
 
-        logger.success("Context closed.")
+        logger.success(
+            "Context closed."
+        )
 
     async def __aenter__(self) -> ContextManager:
         await self.start()
