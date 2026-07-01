@@ -38,9 +38,7 @@ class SessionManager:
 
         try:
             if self.state_path.stat().st_size == 0:
-                logger.warning(
-                    "Storage state file exists but is empty."
-                )
+                logger.warning("Storage state file exists but is empty.")
                 return False
 
             with self.state_path.open(
@@ -52,15 +50,11 @@ class SessionManager:
             return True
 
         except json.JSONDecodeError:
-            logger.warning(
-                "Storage state contains invalid JSON."
-            )
+            logger.warning("Storage state contains invalid JSON.")
             return False
 
         except Exception as exc:
-            logger.warning(
-                f"Unable to validate storage state: {exc}"
-            )
+            logger.warning(f"Unable to validate storage state: {exc}")
             return False
 
     async def save(
@@ -76,10 +70,6 @@ class SessionManager:
             exist_ok=True,
         )
 
-        await context.storage_state(
-            path=str(self.state_path)
-        )
+        await context.storage_state(path=str(self.state_path))
 
-        logger.info(
-            f"Storage state saved to {self.state_path}"
-        )
+        logger.info(f"Storage state saved to {self.state_path}")

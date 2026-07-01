@@ -16,7 +16,7 @@ class HttpCookie:
     name: str
     value: str
 
-    domain: str
+    domain: str | None = None
     path: str = "/"
 
     expires: float | None = None
@@ -80,8 +80,11 @@ class HttpCookie:
         )
 
     def __str__(self) -> str:
-        return (
-            f"{self.name}={self.value}; "
-            f"Domain={self.domain}; "
-            f"Path={self.path}"
-        )
+        result = f"{self.name}={self.value}"
+
+        if self.domain:
+            result += f"; Domain={self.domain}"
+
+        result += f"; Path={self.path}"
+
+        return result

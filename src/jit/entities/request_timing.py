@@ -29,9 +29,7 @@ class RequestTiming:
         if self.ended_at is None:
             return None
 
-        return (
-            self.ended_at - self.started_at
-        ).total_seconds() * 1000
+        return (self.ended_at - self.started_at).total_seconds() * 1000
 
     @property
     def is_completed(self) -> bool:
@@ -55,11 +53,7 @@ class RequestTiming:
 
         return {
             "started_at": self.started_at.isoformat(),
-            "ended_at": (
-                self.ended_at.isoformat()
-                if self.ended_at
-                else None
-            ),
+            "ended_at": (self.ended_at.isoformat() if self.ended_at else None),
             "duration_ms": self.duration_ms,
         }
 
@@ -75,14 +69,8 @@ class RequestTiming:
         ended_at = data.get("ended_at")
 
         return cls(
-            started_at=datetime.fromisoformat(
-                data["started_at"]
-            ),
-            ended_at=(
-                datetime.fromisoformat(ended_at)
-                if ended_at
-                else None
-            ),
+            started_at=datetime.fromisoformat(data["started_at"]),
+            ended_at=(datetime.fromisoformat(ended_at) if ended_at else None),
         )
 
     @classmethod

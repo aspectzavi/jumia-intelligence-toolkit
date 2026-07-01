@@ -145,12 +145,8 @@ data/playwright/downloads/*
 
 # Traces
 data/playwright/traces/
-<<<<<<< HEAD
 data/playwright/storage_state.json
 data/playwright/cookies.json
-=======
-data/playwright/traces/*
->>>>>>> 4869cad (fix(ci): adjust workflow for Ruff lint auto-fix, improve BrowserManager and ContextManager lifecycle handling)
 
 # HAR files
 *.har

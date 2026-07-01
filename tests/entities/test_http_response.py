@@ -69,10 +69,7 @@ def test_content_type():
 
     response = create_response()
 
-    assert (
-        response.content_type
-        == "application/json"
-    )
+    assert response.content_type == "application/json"
 
 
 def test_is_json():
@@ -113,9 +110,7 @@ def test_from_dict():
 
     response = create_response()
 
-    restored = HttpResponse.from_dict(
-        response.to_dict()
-    )
+    restored = HttpResponse.from_dict(response.to_dict())
 
     assert restored.status == 200
     assert restored.status_text == "OK"
@@ -126,11 +121,6 @@ def test_round_trip():
 
     response = create_response()
 
-    restored = HttpResponse.from_dict(
-        response.to_dict()
-    )
+    restored = HttpResponse.from_dict(response.to_dict())
 
-    assert (
-        restored.to_dict()
-        == response.to_dict()
-    )
+    assert restored.to_dict() == response.to_dict()

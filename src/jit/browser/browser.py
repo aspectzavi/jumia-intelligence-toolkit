@@ -48,9 +48,7 @@ class BrowserManager:
             RuntimeError: If the browser has not been started.
         """
         if self._browser is None:
-            raise RuntimeError(
-                "Browser has not been started."
-            )
+            raise RuntimeError("Browser has not been started.")
 
         return self._browser
 
@@ -60,9 +58,7 @@ class BrowserManager:
         """
 
         if self._browser is not None:
-            logger.warning(
-                "Browser is already running."
-            )
+            logger.warning("Browser is already running.")
             return self._browser
 
         logger.info("Starting Playwright...")
@@ -87,24 +83,18 @@ class BrowserManager:
                 slow_mo=settings.slow_mo,
             )
 
-            logger.success(
-                f"{settings.browser} launched successfully."
-            )
+            logger.success(f"{settings.browser} launched successfully.")
 
             return self._browser
 
         except Exception:
-            logger.exception(
-                "Failed to launch browser."
-            )
+            logger.exception("Failed to launch browser.")
 
             if self._playwright is not None:
                 try:
                     await self._playwright.stop()
                 except Exception:
-                    logger.exception(
-                        "Failed to stop Playwright during cleanup."
-                    )
+                    logger.exception("Failed to stop Playwright during cleanup.")
 
             self._browser = None
             self._playwright = None
@@ -120,9 +110,7 @@ class BrowserManager:
         """
 
         if self._browser is None:
-            raise RuntimeError(
-                "Browser has not been started."
-            )
+            raise RuntimeError("Browser has not been started.")
 
         # Local import avoids circular imports
         from .context import ContextManager
@@ -141,18 +129,14 @@ class BrowserManager:
                 await self._browser.close()
 
         except Exception:
-            logger.exception(
-                "Error while closing browser."
-            )
+            logger.exception("Error while closing browser.")
 
         try:
             if self._playwright is not None:
                 await self._playwright.stop()
 
         except Exception:
-            logger.exception(
-                "Error while stopping Playwright."
-            )
+            logger.exception("Error while stopping Playwright.")
 
         finally:
             self._browser = None

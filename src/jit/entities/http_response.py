@@ -37,12 +37,9 @@ class HttpResponse:
 
     server_ip: str | None = None
 
-    headers: HeaderCollection = field(
-        default_factory=HeaderCollection
-    )
+    headers: HeaderCollection = field(default_factory=HeaderCollection)
 
     timing: RequestTiming | None = None
-
 
     @property
     def is_success(self) -> bool:
@@ -77,10 +74,7 @@ class HttpResponse:
         """
         Return headers as a case-insensitive dictionary.
         """
-        return {
-            header.name.lower(): header.value
-            for header in self.headers
-        }
+        return {header.name.lower(): header.value for header in self.headers}
 
     @property
     def content_type(self) -> str | None:
@@ -171,15 +165,8 @@ class HttpResponse:
             ),
             "redirected": self.redirected,
             "server_ip": self.server_ip,
-            "headers": [
-                header.to_dict()
-                for header in self.headers
-            ],
-            "timing": (
-                self.timing.to_dict()
-                if self.timing is not None
-                else None
-            ),
+            "headers": [header.to_dict() for header in self.headers],
+            "timing": (self.timing.to_dict() if self.timing is not None else None),
         }
 
     @classmethod
@@ -221,13 +208,7 @@ class HttpResponse:
             server_ip=data.get(
                 "server_ip",
             ),
-            timing=(
-                RequestTiming.from_dict(
-                    data["timing"]
-                )
-                if data.get("timing")
-                else None
-            ),
+            timing=(RequestTiming.from_dict(data["timing"]) if data.get("timing") else None),
         )
 
         response.headers.extend(
@@ -243,7 +224,4 @@ class HttpResponse:
         return response
 
     def __str__(self) -> str:
-        return (
-            f"{self.status} "
-            f"{self.url}"
-        )
+        return f"{self.status} {self.url}"

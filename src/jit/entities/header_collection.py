@@ -27,10 +27,7 @@ class HeaderCollection:
         Rebuild the internal lookup cache.
         """
 
-        self._cache = {
-            header.name: header.value
-            for header in self._headers
-        }
+        self._cache = {header.name: header.value for header in self._headers}
 
     def __iter__(self) -> Iterator[HttpHeader]:
         return iter(self._headers)
@@ -62,15 +59,10 @@ class HeaderCollection:
         return self._headers == other._headers
 
     def __repr__(self) -> str:
-        return (
-            f"HeaderCollection({len(self)} headers)"
-        )
+        return f"HeaderCollection({len(self)} headers)"
 
     def __str__(self) -> str:
-        return "\n".join(
-            str(header)
-            for header in self._headers
-        )
+        return "\n".join(str(header) for header in self._headers)
 
     @property
     def items(self) -> list[HttpHeader]:
@@ -120,11 +112,7 @@ class HeaderCollection:
         Remove all headers with the given name.
         """
 
-        self._headers = [
-            header
-            for header in self._headers
-            if not header.matches(name)
-        ]
+        self._headers = [header for header in self._headers if not header.matches(name)]
 
         self._rebuild_cache()
 
@@ -141,9 +129,7 @@ class HeaderCollection:
         Return a shallow copy.
         """
 
-        return HeaderCollection(
-            self._headers.copy()
-        )
+        return HeaderCollection(self._headers.copy())
 
     def get(
         self,
@@ -167,11 +153,7 @@ class HeaderCollection:
         Return all matching headers.
         """
 
-        return [
-            header.value
-            for header in self._headers
-            if header.matches(name)
-        ]
+        return [header.value for header in self._headers if header.matches(name)]
 
     def has(
         self,
@@ -212,10 +194,7 @@ class HeaderCollection:
         Serialize the collection.
         """
 
-        return [
-            header.to_dict()
-            for header in self._headers
-        ]
+        return [header.to_dict() for header in self._headers]
 
     @classmethod
     def from_dict(
@@ -226,9 +205,4 @@ class HeaderCollection:
         Deserialize a collection.
         """
 
-        return cls(
-            [
-                HttpHeader.from_dict(item)
-                for item in data
-            ]
-        )
+        return cls([HttpHeader.from_dict(item) for item in data])

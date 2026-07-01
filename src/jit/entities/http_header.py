@@ -67,7 +67,4 @@ class HttpHeader:
         )
 
     def __str__(self) -> str:
-        return (
-            f"{self.name}: "
-            f"{self.value}"
-        )
+        return f"{self.name}: {self.value}"

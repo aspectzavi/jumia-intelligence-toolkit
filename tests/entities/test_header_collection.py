@@ -34,15 +34,9 @@ def test_get_header_case_insensitive():
         )
     )
 
-    assert (
-        headers.get("content-type")
-        == "application/json"
-    )
+    assert headers.get("content-type") == "application/json"
 
-    assert (
-        headers.get("CONTENT-TYPE")
-        == "application/json"
-    )
+    assert headers.get("CONTENT-TYPE") == "application/json"
 
 
 def test_has_header():
@@ -72,10 +66,7 @@ def test_content_type_property():
         )
     )
 
-    assert (
-        headers.content_type
-        == "application/json"
-    )
+    assert headers.content_type == "application/json"
 
 
 def test_content_length_property():
@@ -124,9 +115,7 @@ def test_get_all():
         )
     )
 
-    assert headers.get_all(
-        "set-cookie"
-    ) == [
+    assert headers.get_all("set-cookie") == [
         "A=1",
         "B=2",
     ]
@@ -147,10 +136,7 @@ def test_to_dict_roundtrip():
 
     restored = HeaderCollection.from_dict(data)
 
-    assert (
-        restored.get("accept")
-        == "*/*"
-    )
+    assert restored.get("accept") == "*/*"
 
 
 def test_contains():
@@ -180,17 +166,11 @@ def test_getitem():
         )
     )
 
-    assert (
-        headers["HOST"]
-        == "jumia.co.ke"
-    )
+    assert headers["HOST"] == "jumia.co.ke"
 
 
 def test_repr():
 
     headers = HeaderCollection()
 
-    assert (
-        "HeaderCollection"
-        in repr(headers)
-    )
+    assert "HeaderCollection" in repr(headers)

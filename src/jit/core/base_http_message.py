@@ -16,9 +16,7 @@ class BaseHttpMessage(BaseEntity, ABC):
     Provides common header utilities.
     """
 
-    headers: list[HttpHeader] = field(
-        default_factory=list
-    )
+    headers: list[HttpHeader] = field(default_factory=list)
 
     @property
     def header_map(self) -> dict[str, str]:
@@ -26,10 +24,7 @@ class BaseHttpMessage(BaseEntity, ABC):
         Return headers as a lowercase dictionary.
         """
 
-        return {
-            header.name.lower(): header.value
-            for header in self.headers
-        }
+        return {header.name.lower(): header.value for header in self.headers}
 
     def get_header(
         self,
@@ -39,9 +34,7 @@ class BaseHttpMessage(BaseEntity, ABC):
         Return a header value.
         """
 
-        return self.header_map.get(
-            name.lower()
-        )
+        return self.header_map.get(name.lower())
 
     def has_header(
         self,
@@ -51,10 +44,7 @@ class BaseHttpMessage(BaseEntity, ABC):
         Whether a header exists.
         """
 
-        return (
-            self.get_header(name)
-            is not None
-        )
+        return self.get_header(name) is not None
 
     def add_header(
         self,
@@ -68,28 +58,20 @@ class BaseHttpMessage(BaseEntity, ABC):
 
     @property
     def content_type(self) -> str | None:
-        return self.get_header(
-            "Content-Type"
-        )
+        return self.get_header("Content-Type")
 
     @property
     def content_encoding(self) -> str | None:
-        return self.get_header(
-            "Content-Encoding"
-        )
+        return self.get_header("Content-Encoding")
 
     @property
     def user_agent(self) -> str | None:
-        return self.get_header(
-            "User-Agent"
-        )
+        return self.get_header("User-Agent")
 
     @property
     def content_length(self) -> int | None:
 
-        value = self.get_header(
-            "Content-Length"
-        )
+        value = self.get_header("Content-Length")
 
         if value is None:
             return None
@@ -107,7 +89,4 @@ class BaseHttpMessage(BaseEntity, ABC):
         Serialize headers.
         """
 
-        return [
-            header.to_dict()
-            for header in self.headers
-        ]
+        return [header.to_dict() for header in self.headers]

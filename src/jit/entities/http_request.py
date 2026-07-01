@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import ParseResult, parse_qs, urlparse
 from uuid import uuid4
 
+from jit.entities.header_collection import HeaderCollection
 from jit.entities.http_cookie import HttpCookie
 from jit.entities.http_header import HttpHeader
 from jit.entities.request_timing import RequestTiming
@@ -22,9 +23,7 @@ class HttpRequest:
 
     id: str = field(default_factory=lambda: str(uuid4()))
 
-    timestamp: datetime = field(
-        default_factory=lambda: datetime.now(UTC)
-    )
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     url: str = ""
 
@@ -38,13 +37,11 @@ class HttpRequest:
 
     post_data: str | None = None
 
-    headers: list[HttpHeader] = field(default_factory=list)
+    headers: HeaderCollection = field(default_factory=HeaderCollection)
 
     cookies: list[HttpCookie] = field(default_factory=list)
 
-    timing: RequestTiming = field(
-        default_factory=RequestTiming.start_now
-    )
+    timing: RequestTiming = field(default_factory=RequestTiming.start_now)
 
     @property
     def parsed_url(self) -> ParseResult:
@@ -89,27 +86,21 @@ class HttpRequest:
         """
         Headers as a case-insensitive dictionary.
         """
-        return {
-            header.name.lower(): header.value
-            for header in self.headers
-        }
+        return self.headers.as_dict
 
     @property
     def cookie_map(self) -> dict[str, str]:
         """
         Cookies as a dictionary.
         """
-        return {
-            cookie.name: cookie.value
-            for cookie in self.cookies
-        }
+        return {cookie.name: cookie.value for cookie in self.cookies}
 
     @property
     def content_type(self) -> str | None:
         """
         Content-Type header.
         """
-        return self.header_map.get("content-type")
+        return self.headers.content_type
 
     @property
     def is_json(self) -> bool:
@@ -158,7 +149,7 @@ class HttpRequest:
         """
         Add a header.
         """
-        self.headers.append(header)
+        self.headers.add(header)
 
     def add_cookie(
         self,
@@ -183,14 +174,8 @@ class HttpRequest:
             "frame_url": self.frame_url,
             "is_navigation": self.is_navigation,
             "post_data": self.post_data,
-            "headers": [
-                header.to_dict()
-                for header in self.headers
-            ],
-            "cookies": [
-                cookie.to_dict()
-                for cookie in self.cookies
-            ],
+            "headers": self.headers.to_dict(),
+            "cookies": [cookie.to_dict() for cookie in self.cookies],
             "timing": self.timing.to_dict(),
         }
 
@@ -205,9 +190,7 @@ class HttpRequest:
 
         request = cls(
             id=data["id"],
-            timestamp=datetime.fromisoformat(
-                data["timestamp"]
-            ),
+            timestamp=datetime.fromisoformat(data["timestamp"]),
             url=data["url"],
             method=data["method"],
             resource_type=data.get(
@@ -220,18 +203,10 @@ class HttpRequest:
                 False,
             ),
             post_data=data.get("post_data"),
-            timing=RequestTiming.from_dict(
-                data["timing"]
-            ),
+            timing=RequestTiming.from_dict(data["timing"]),
         )
 
-        request.headers.extend(
-            HttpHeader.from_dict(item)
-            for item in data.get(
-                "headers",
-                [],
-            )
-        )
+        request.headers = HeaderCollection.from_dict(data.get("headers", []))
 
         request.cookies.extend(
             HttpCookie.from_dict(item)
@@ -244,7 +219,4 @@ class HttpRequest:
         return request
 
     def __str__(self) -> str:
-        return (
-            f"{self.method} "
-            f"{self.url}"
-        )
+        return f"{self.method} {self.url}"

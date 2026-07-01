@@ -43,13 +43,17 @@ def create_request() -> HttpRequest:
 
 
 def test_default_values():
-
     request = HttpRequest()
 
     assert request.method == "GET"
     assert request.url == ""
-    assert request.headers == []
-    assert request.cookies == []
+
+    assert len(request.headers) == 0
+    assert len(request.cookies) == 0
+
+    assert request.post_data is None
+    assert request.frame_url is None
+    assert request.resource_type == "other"
 
 
 def test_hostname():
@@ -101,10 +105,7 @@ def test_content_type():
 
     request = create_request()
 
-    assert (
-        request.content_type
-        == "application/json"
-    )
+    assert request.content_type == "application/json"
 
 
 def test_is_json():
@@ -185,9 +186,7 @@ def test_from_dict():
 
     request = create_request()
 
-    restored = HttpRequest.from_dict(
-        request.to_dict()
-    )
+    restored = HttpRequest.from_dict(request.to_dict())
 
     assert restored.url == request.url
     assert restored.method == request.method
@@ -199,24 +198,16 @@ def test_round_trip():
 
     request = create_request()
 
-    restored = HttpRequest.from_dict(
-        request.to_dict()
-    )
+    restored = HttpRequest.from_dict(request.to_dict())
 
-    assert (
-        restored.to_dict()
-        == request.to_dict()
-    )
+    assert restored.to_dict() == request.to_dict()
 
 
 def test_str():
 
     request = create_request()
 
-    assert str(request) == (
-        "POST "
-        "https://www.jumia.co.ke/api/products?page=1&limit=20"
-    )
+    assert str(request) == ("POST https://www.jumia.co.ke/api/products?page=1&limit=20")
 
 
 def test_not_json():
@@ -235,18 +226,14 @@ def test_not_json():
 
 def test_not_api():
 
-    request = HttpRequest(
-        url="https://www.jumia.co.ke/about"
-    )
+    request = HttpRequest(url="https://www.jumia.co.ke/about")
 
     assert not request.is_api
 
 
 def test_empty_query_parameters():
 
-    request = HttpRequest(
-        url="https://www.jumia.co.ke/"
-    )
+    request = HttpRequest(url="https://www.jumia.co.ke/")
 
     assert request.query_parameters == {}
 

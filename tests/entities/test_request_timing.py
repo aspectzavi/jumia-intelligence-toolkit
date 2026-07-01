@@ -39,8 +39,6 @@ def test_to_dict():
 def test_from_dict():
     timing = RequestTiming.start_now()
 
-    restored = RequestTiming.from_dict(
-        timing.to_dict()
-    )
+    restored = RequestTiming.from_dict(timing.to_dict())
 
     assert restored.started_at == timing.started_at
