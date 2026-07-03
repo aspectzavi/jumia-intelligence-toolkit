@@ -64,7 +64,7 @@ class EndpointDetector:
     def add_response(
         self,
         response: HttpResponse,
-    ) -> None:
+    ) -> ApiEndpoint | None:
         """
         Attach a response to its endpoint.
 
@@ -77,7 +77,9 @@ class EndpointDetector:
                 for request in endpoint.requests
             ):
                 endpoint.add_response(response)
-                return
+                return endpoint
+
+        return None
 
     def get(
         self,
