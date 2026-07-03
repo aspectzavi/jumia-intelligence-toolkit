@@ -12,10 +12,21 @@ class ResponseLike(Protocol):
     used by ResponseMapper.
     """
 
-    status: int
-    status_text: str
-    url: str
-    headers: dict[str, str]
+    @property
+    def status(self) -> int:
+        ...
+
+    @property
+    def status_text(self) -> str:
+        ...
+
+    @property
+    def url(self) -> str:
+        ...
+
+    @property
+    def headers(self) -> dict[str, str]:
+        ...
 
 
 class ResponseMapper:
@@ -26,9 +37,13 @@ class ResponseMapper:
     @classmethod
     def map(
         cls,
+        *,
         request_id: str,
         response: ResponseLike,
     ) -> HttpResponse:
+        """
+        Convert a Playwright response into an HttpResponse entity.
+        """
 
         http_response = HttpResponse(
             request_id=request_id,

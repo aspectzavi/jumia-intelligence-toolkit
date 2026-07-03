@@ -9,17 +9,28 @@ from jit.entities.http_request import HttpRequest
 class RequestLike(Protocol):
     """
     Protocol representing the subset of a Playwright Request
-    that RequestMapper depends on.
-
-    Any object exposing these attributes is compatible,
-    including the real Playwright Request and test doubles.
+    used by RequestMapper.
     """
 
-    url: str
-    method: str
-    resource_type: str
-    headers: dict[str, str]
-    post_data: str | None
+    @property
+    def url(self) -> str:
+        ...
+
+    @property
+    def method(self) -> str:
+        ...
+
+    @property
+    def resource_type(self) -> str:
+        ...
+
+    @property
+    def headers(self) -> dict[str, str]:
+        ...
+
+    @property
+    def post_data(self) -> str | None:
+        ...
 
 
 class RequestMapper:
@@ -32,11 +43,15 @@ class RequestMapper:
         cls,
         request: RequestLike,
     ) -> HttpRequest:
+        """
+        Convert a Playwright request into an HttpRequest entity.
+        """
+
         http_request = HttpRequest(
-            url=request.url,
             method=request.method,
+            url=request.url,
             resource_type=request.resource_type,
-            post_data=request.post_data,
+            body=request.post_data,
         )
 
         for name, value in request.headers.items():
