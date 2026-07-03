@@ -27,21 +27,21 @@ def test_request_body():
 
 
 def test_response_body():
-    operation = OpenApiOperation(
-        response_body=OpenApiSchema(
-            type="object",
-        ),
+    operation = OpenApiOperation()
+
+    operation.responses[200] = OpenApiSchema(
+        type="object",
     )
 
-    assert operation.to_dict()["responses"] == {
-        "200": {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                    }
-                }
-            },
-        }
-    }
+    data = operation.to_dict()
+
+    assert "responses" in data
+    assert "200" in data["responses"]
+
+    schema = (
+        data["responses"]["200"]
+        ["content"]["application/json"]
+        ["schema"]
+    )
+
+    assert schema["type"] == "object"

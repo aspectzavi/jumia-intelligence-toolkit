@@ -12,11 +12,11 @@ class OpenApiSchema:
 
     type: str | None = None
 
-    properties: dict[str, "OpenApiSchema"] = field(
+    properties: dict[str, OpenApiSchema] = field(
         default_factory=dict,
     )
 
-    items: "OpenApiSchema | None" = None
+    items: OpenApiSchema | None = None
 
     required: list[str] = field(
         default_factory=list,
@@ -27,6 +27,10 @@ class OpenApiSchema:
     example: Any = None
 
     def to_dict(self) -> dict[str, Any]:
+        """
+        Serialize the schema.
+        """
+
         data: dict[str, Any] = {}
 
         if self.type is not None:
@@ -51,3 +55,39 @@ class OpenApiSchema:
             data["example"] = self.example
 
         return data
+
+    @classmethod
+    def from_dict(
+        cls,
+        data: dict[str, Any],
+    ) -> OpenApiSchema:
+        """
+        Deserialize an OpenAPI schema.
+        """
+
+        schema = cls(
+            type=data.get("type"),
+            required=list(data.get("required", [])),
+            description=data.get("description"),
+            example=data.get("example"),
+        )
+
+        schema.properties = {
+            name: cls.from_dict(value)
+            for name, value in data.get(
+                "properties",
+                {},
+            ).items()
+        }
+
+        if "items" in data:
+            schema.items = cls.from_dict(
+                data["items"],
+            )
+
+        return schema
+
+    def __str__(self) -> str:
+        return (
+            f"OpenApiSchema(type={self.type!r})"
+        )
