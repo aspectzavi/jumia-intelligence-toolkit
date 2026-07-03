@@ -19,22 +19,16 @@ class ApiMapper:
     def __init__(self) -> None:
         self._detector = EndpointDetector()
 
-    def add(
+    def add_request(
         self,
         request: HttpRequest,
-        response: HttpResponse | None = None,
     ) -> ApiEndpoint:
         """
-        Add a captured request and optionally its response.
-
-        Also infers and merges request schemas into the endpoint.
+        Add a captured request and infer its schema.
         """
 
         endpoint = self._detector.add_request(request)
 
-        # -------------------------
-        # Schema inference (request)
-        # -------------------------
         if isinstance(request.body, dict):
             schema = SchemaDetector.detect(request.body)
 
@@ -46,25 +40,50 @@ class ApiMapper:
                     schema,
                 )
 
-        # -------------------------
-        # Attach response
-        # -------------------------
+        return endpoint
+
+    def add_response(
+        self,
+        response: HttpResponse,
+    ) -> ApiEndpoint | None:
+        """
+        Attach a captured response and infer its schema.
+        """
+
+        endpoint = self._detector.add_response(response)
+
+        if (
+            endpoint is not None
+            and isinstance(response.body, dict)
+        ):
+            schema = SchemaDetector.detect(response.body)
+
+            if endpoint.response_schema is None:
+                endpoint.response_schema = schema
+            else:
+                endpoint.response_schema = SchemaDetector.merge(
+                    endpoint.response_schema,
+                    schema,
+                )
+
+        return endpoint
+
+    def add(
+        self,
+        request: HttpRequest,
+        response: HttpResponse | None = None,
+    ) -> ApiEndpoint:
+        """
+        Add a request and optionally its response.
+
+        This convenience method supports synchronous discovery while
+        internally delegating to add_request() and add_response().
+        """
+
+        endpoint = self.add_request(request)
+
         if response is not None:
-            self._detector.add_response(response)
-
-            if (
-                response is not None
-                and isinstance(response.body, dict)
-            ):
-                schema = SchemaDetector.detect(response.body)
-
-                if endpoint.response_schema is None:
-                    endpoint.response_schema = schema
-                else:
-                    endpoint.response_schema = SchemaDetector.merge(
-                        endpoint.response_schema,
-                        schema,
-                    )
+            self.add_response(response)
 
         return endpoint
 
