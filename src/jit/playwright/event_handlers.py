@@ -15,22 +15,23 @@ from jit.playwright.response_mapper import (
 class EventHandlers:
     """
     Receives browser network events and forwards them into
-    the discovery pipeline.
+    the API discovery pipeline.
     """
 
     def __init__(
         self,
         mapper: ApiMapper,
     ) -> None:
-
         self.mapper = mapper
-
         self.last_request: HttpRequest | None = None
 
     def on_request(
         self,
         request: RequestLike,
     ) -> None:
+        """
+        Handle a Playwright request event.
+        """
 
         http_request = RequestMapper.map(request)
 
@@ -40,13 +41,17 @@ class EventHandlers:
 
     def on_response(
         self,
-        *,
-        request_id: str,
         response: ResponseLike,
     ) -> None:
+        """
+        Handle a Playwright response event.
+        """
+
+        if self.last_request is None:
+            return
 
         http_response = ResponseMapper.map(
-            request_id=request_id,
+            request_id=self.last_request.id,
             response=response,
         )
 
