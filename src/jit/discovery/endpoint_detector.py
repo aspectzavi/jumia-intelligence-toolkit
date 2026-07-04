@@ -18,13 +18,19 @@ class EndpointDetector:
             ApiEndpoint,
         ] = {}
 
+        # O(1) request_id -> endpoint lookup
+        self._request_lookup: dict[
+            str,
+            ApiEndpoint,
+        ] = {}
+
     @staticmethod
     def _key(
         method: str,
         path: str,
     ) -> tuple[str, str]:
         """
-        Normalize the lookup key.
+        Normalize the endpoint lookup key.
         """
 
         return (
@@ -59,6 +65,11 @@ class EndpointDetector:
 
         endpoint.add_request(request)
 
+        # Cache request id for O(1) response lookup.
+        self._request_lookup[
+            request.id
+        ] = endpoint
+
         return endpoint
 
     def add_response(
@@ -66,20 +77,19 @@ class EndpointDetector:
         response: HttpResponse,
     ) -> ApiEndpoint | None:
         """
-        Attach a response to its endpoint.
-
-        Responses are matched using the request_id.
+        Attach a response to its endpoint using the request ID.
         """
 
-        for endpoint in self._endpoints.values():
-            if any(
-                request.id == response.request_id
-                for request in endpoint.requests
-            ):
-                endpoint.add_response(response)
-                return endpoint
+        endpoint = self._request_lookup.get(
+            response.request_id,
+        )
 
-        return None
+        if endpoint is None:
+            return None
+
+        endpoint.add_response(response)
+
+        return endpoint
 
     def get(
         self,
@@ -112,9 +122,12 @@ class EndpointDetector:
         """
 
         self._endpoints.clear()
+        self._request_lookup.clear()
 
     def __len__(self) -> int:
         return len(self._endpoints)
 
     def __iter__(self) -> Iterator[ApiEndpoint]:
-        return iter(self._endpoints.values())
+        return iter(
+            self._endpoints.values()
+        )
