@@ -19,6 +19,7 @@ class ApiMapper:
 
     def __init__(self) -> None:
         self._detector = EndpointDetector()
+        self._requests: dict[str, HttpRequest] = {}
 
     def add_request(
         self,
@@ -27,7 +28,7 @@ class ApiMapper:
         """
         Add a captured request and infer its schema.
         """
-
+        self._requests[request.id] = request
         endpoint = self._detector.add_request(request)
 
         if isinstance(request.body, dict):
@@ -42,6 +43,16 @@ class ApiMapper:
                 )
 
         return endpoint
+
+    def get_request(
+        self,
+        request_id: str,
+    ) -> HttpRequest | None:
+        """
+        Retrieve a previously captured request.
+        """
+
+        return self._requests.get(request_id)
 
     def add_response(
         self,
@@ -125,6 +136,7 @@ class ApiMapper:
         """
 
         self._detector.clear()
+        self._requests.clear()
 
     def __len__(self) -> int:
         return len(self._detector)
