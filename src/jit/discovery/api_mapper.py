@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 from jit.discovery.endpoint_detector import EndpointDetector
-from jit.discovery.schema_detector import SchemaDetector
+from jit.discovery.schema_manager import SchemaManager
 from jit.discovery.url_normalizer import URLNormalizer
 from jit.entities.api_endpoint import ApiEndpoint
 from jit.entities.http_request import HttpRequest
@@ -31,16 +31,10 @@ class ApiMapper:
         self._requests[request.id] = request
         endpoint = self._detector.add_request(request)
 
-        if isinstance(request.body, dict):
-            schema = SchemaDetector.detect(request.body)
-
-            if endpoint.request_schema is None:
-                endpoint.request_schema = schema
-            else:
-                endpoint.request_schema = SchemaDetector.merge(
-                    endpoint.request_schema,
-                    schema,
-                )
+        SchemaManager.update_request_schema(
+            endpoint,
+            request.body,
+        )
 
         return endpoint
 
@@ -64,19 +58,11 @@ class ApiMapper:
 
         endpoint = self._detector.add_response(response)
 
-        if (
-            endpoint is not None
-            and isinstance(response.body, dict)
-        ):
-            schema = SchemaDetector.detect(response.body)
-
-            if endpoint.response_schema is None:
-                endpoint.response_schema = schema
-            else:
-                endpoint.response_schema = SchemaDetector.merge(
-                    endpoint.response_schema,
-                    schema,
-                )
+        if endpoint is not None:
+            SchemaManager.update_response_schema(
+                endpoint,
+                response.body,
+            )
 
         return endpoint
 
