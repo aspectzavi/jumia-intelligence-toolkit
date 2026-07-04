@@ -4,6 +4,7 @@ from collections.abc import Iterator
 
 from jit.discovery.endpoint_detector import EndpointDetector
 from jit.discovery.schema_detector import SchemaDetector
+from jit.discovery.url_normalizer import URLNormalizer
 from jit.entities.api_endpoint import ApiEndpoint
 from jit.entities.http_request import HttpRequest
 from jit.entities.http_response import HttpResponse
@@ -94,11 +95,20 @@ class ApiMapper:
     ) -> ApiEndpoint | None:
         """
         Retrieve an endpoint.
+
+        The supplied path may be either:
+
+        - a relative API path
+        - a full URL
+
+        The path is normalized before lookup.
         """
+
+        normalized_path = URLNormalizer.normalize(path)
 
         return self._detector.get(
             method,
-            path,
+            normalized_path,
         )
 
     @property
