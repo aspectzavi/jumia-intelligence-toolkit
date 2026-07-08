@@ -5,148 +5,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-*.pyd
-*.dll
 
-# ========================================
 # Virtual Environments
-# ========================================
-
 .venv/
 venv/
 env/
 ENV/
 
-# ========================================
-# Python Version Managers
-# ========================================
+data/playwright/traces/*
 
-.python-version
-
-# ========================================
-# Distribution / Packaging
-# ========================================
-
-build/
-dist/
-site/
-*.egg-info/
-.eggs/
-*.egg
-*.whl
-pip-wheel-metadata/
-
-# ========================================
-# Testing
-# ========================================
-
-.pytest_cache/
-.cache/
-.coverage
-.coverage.*
-htmlcov/
-
-# ========================================
-# Type Checking
-# ========================================
-
-.mypy_cache/
-
-# ========================================
-# Linting / Formatting
-# ========================================
-
-.ruff_cache/
-
-# ========================================
-# Jupyter
-# ========================================
-
-.ipynb_checkpoints/
-
-# ========================================
-# IDEs
-# ========================================
-
-.vscode/*
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-.idea/
-
-# ========================================
-# Operating System
-# ========================================
-
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# ========================================
-# Environment Variables
-# ========================================
-
-.env
-.env.*
-!.env.example
-
-# ========================================
-# Logs
-# ========================================
-
-logs/
-*.log
-
-# ========================================
-# Databases
-# ========================================
-
-*.db
-*.sqlite
-*.sqlite3
-
-# ========================================
-# Runtime Data
-# ========================================
-
-# Cache
-data/cache/*
-!data/cache/.gitkeep
-
-# Raw scraped data
-data/raw/*
-!data/raw/.gitkeep
-
-# Processed data
-data/processed/*
-!data/processed/.gitkeep
-
-# Exported data
-data/exports/*
-!data/exports/.gitkeep
-
-# Images
-data/images/*
-!data/images/.gitkeep
-
-# ========================================
-# Playwright Runtime
-# ========================================
-
-# Browser session
-data/playwright/storage_state.json
-data/playwright/cookies.json
-
-# Downloads
-data/playwright/downloads/
-data/playwright/downloads/*
-
-# Traces
-data/playwright/traces/
-data/playwright/storage_state.json
-data/playwright/cookies.json
 
 # HAR files
 *.har
@@ -202,3 +69,66 @@ captures/
 
 # Keep empty runtime directories
 !data/**/.gitkeep
+=======
+# Distribution
+build/
+dist/
+*.egg-info/
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Runtime Data
+data/cache/
+data/playwright/downloads/
+data/playwright/traces/
+
+# Browser Videos
+data/captures/videos/
+
+# Screenshots
+data/captures/screenshots/
+
+# Temporary Files
+*.tmp
+*.bak
+
+# Playwright
+playwright-report/
+test-results/
+
+# Jupyter
+.ipynb_checkpoints/
+
+
+__pycache__/
+*.pyc
