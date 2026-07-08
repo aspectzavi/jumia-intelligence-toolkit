@@ -24,18 +24,14 @@ class HttpCookie:
     secure: bool = False
     http_only: bool = False
 
-    same_site: str | None = None
+    same_site: str |None = None
 
-    def is_expired(self, current_time: float) -> bool:
+    def is_expired(
+        self,
+        current_time: float,
+    ) -> bool:
         """
         Determine whether the cookie has expired.
-
-        Args:
-            current_time:
-                Current Unix timestamp.
-
-        Returns:
-            True if expired.
         """
 
         if self.expires is None:
@@ -46,6 +42,8 @@ class HttpCookie:
     def to_dict(self) -> dict[str, Any]:
         """
         Serialize the cookie.
+
+        Kept for backwards compatibility.
         """
 
         return {
@@ -65,13 +63,15 @@ class HttpCookie:
         data: dict[str, Any],
     ) -> HttpCookie:
         """
-        Create a cookie from a dictionary.
+        Deserialize the cookie.
+
+        Kept for backwards compatibility.
         """
 
         return cls(
             name=data["name"],
             value=data["value"],
-            domain=data["domain"],
+            domain=data.get("domain"),
             path=data.get("path", "/"),
             expires=data.get("expires"),
             secure=data.get("secure", False),
