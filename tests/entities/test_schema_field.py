@@ -57,58 +57,6 @@ def test_get_missing_child():
     assert parent.get_child("missing") is None
 
 
-def test_to_dict():
-    field = SchemaField(
-        name="price",
-        field_type="integer",
-    )
-
-    assert field.to_dict() == {
-        "name": "price",
-        "field_type": "integer",
-        "required": True,
-        "children": [],
-    }
-
-
-def test_from_dict():
-    field = SchemaField.from_dict(
-        {
-            "name": "price",
-            "field_type": "integer",
-            "required": False,
-            "children": [],
-        }
-    )
-
-    assert field.name == "price"
-    assert field.field_type == "integer"
-    assert field.required is False
-
-
-def test_nested_from_dict():
-    field = SchemaField.from_dict(
-        {
-            "name": "seller",
-            "field_type": "object",
-            "required": True,
-            "children": [
-                {
-                    "name": "id",
-                    "field_type": "integer",
-                    "required": True,
-                    "children": [],
-                }
-            ],
-        }
-    )
-
-    assert len(field.children) == 1
-
-    assert field.children[0].name == "id"
-
-    assert field.children[0].field_type == "integer"
-
 
 def test_string_representation():
     field = SchemaField(

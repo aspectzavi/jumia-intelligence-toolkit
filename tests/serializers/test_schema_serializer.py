@@ -53,8 +53,8 @@ def test_round_trip() -> None:
         )
     )
 
-    restored = SchemaSerializer.from_dict(
-        SchemaSerializer.to_dict(schema)
-    )
+    serialized = SchemaSerializer.to_dict(schema)
 
-    assert restored.to_dict() == schema.to_dict()
+    restored = SchemaSerializer.from_dict(serialized)
+
+    assert SchemaSerializer.to_dict(restored) == serialized
