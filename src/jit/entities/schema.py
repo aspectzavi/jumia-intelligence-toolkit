@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Any
 
 from jit.entities.schema_field import SchemaField
 
@@ -47,39 +46,6 @@ class Schema:
                 return schema_field
 
         return None
-
-    def to_dict(self) -> dict[str, Any]:
-        """
-        Serialize the schema.
-        """
-
-        return {
-            "fields": [
-                schema_field.to_dict()
-                for schema_field in self.fields
-            ]
-        }
-
-    @classmethod
-    def from_dict(
-        cls,
-        data: dict[str, Any],
-    ) -> Schema:
-        """
-        Deserialize a schema.
-        """
-
-        schema = cls()
-
-        schema.fields.extend(
-            SchemaField.from_dict(item)
-            for item in data.get(
-                "fields",
-                [],
-            )
-        )
-
-        return schema
 
     def __iter__(self) -> Iterator[SchemaField]:
         """

@@ -131,52 +131,6 @@ def test_add_tag():
     }
 
 
-def test_to_dict():
-    endpoint = ApiEndpoint(
-        path="/products",
-        method="GET",
-        description="Product endpoint",
-    )
-
-    endpoint.add_tag("catalog")
-    endpoint.add_request(make_request())
-    endpoint.add_response(make_response())
-
-    data = endpoint.to_dict()
-
-    assert data["path"] == "/products"
-    assert data["method"] == "GET"
-    assert data["request_type"] == "api"
-    assert data["description"] == "Product endpoint"
-    assert data["tags"] == ["catalog"]
-    assert len(data["requests"]) == 1
-    assert len(data["responses"]) == 1
-
-
-def test_from_dict():
-    endpoint = ApiEndpoint(
-        path="/products",
-        method="GET",
-        description="Product endpoint",
-    )
-
-    endpoint.add_tag("catalog")
-    endpoint.add_request(make_request())
-    endpoint.add_response(make_response())
-
-    restored = ApiEndpoint.from_dict(
-        endpoint.to_dict()
-    )
-
-    assert restored.path == endpoint.path
-    assert restored.method == endpoint.method
-    assert restored.request_type == RequestType.API
-    assert restored.description == endpoint.description
-    assert restored.tags == endpoint.tags
-    assert restored.request_count == 1
-    assert restored.response_count == 1
-
-
 def test_string_representation():
     endpoint = ApiEndpoint(
         path="/products",
