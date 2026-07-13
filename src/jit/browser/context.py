@@ -7,6 +7,7 @@ from playwright.async_api import Browser, BrowserContext, Page
 
 from jit.browser.session import SessionManager
 from jit.config.settings import settings
+from jit.network.capture import CaptureSession
 from jit.utils import logger
 
 
@@ -14,18 +15,24 @@ class ContextManager:
     """
     Manages a Playwright BrowserContext.
 
-    Responsibilities:
+    Responsibilities
+    ----------------
     - Create browser contexts
     - Restore browser session state
     - Save browser session state
     - Create pages
+    - Automatically capture network traffic
     - Clean up resources
     """
 
-    def __init__(self, browser: Browser) -> None:
+    def __init__(
+        self,
+        browser: Browser,
+    ) -> None:
         self._browser = browser
         self._context: BrowserContext | None = None
         self._session = SessionManager()
+        self._capture = CaptureSession()
 
     @property
     def context(self) -> BrowserContext:
@@ -34,22 +41,40 @@ class ContextManager:
         """
 
         if self._context is None:
-            raise RuntimeError("Context has not been started.")
+            raise RuntimeError(
+                "Context has not been started."
+            )
 
         return self._context
 
-    async def start(self) -> BrowserContext:
+    @property
+    def capture(self) -> CaptureSession:
+        """
+        Active network capture session.
+        """
+
+        return self._capture
+
+    async def start(
+        self,
+    ) -> BrowserContext:
         """
         Create a new browser context.
         """
 
         if self._context is not None:
-            logger.warning("Context is already running.")
+            logger.warning(
+                "Context is already running."
+            )
             return self._context
 
-        logger.info("Creating browser context...")
+        logger.info(
+            "Creating browser context..."
+        )
 
-        Path(settings.download_path).mkdir(
+        Path(
+            settings.download_path,
+        ).mkdir(
             parents=True,
             exist_ok=True,
         )
@@ -57,11 +82,19 @@ class ContextManager:
         storage_state: str | None = None
 
         if self._session.is_valid:
-            logger.info("Loading storage state...")
+            logger.info(
+                "Loading storage state..."
+            )
 
-            storage_state = str(self._session.state_path)
+            storage_state = str(
+                self._session.state_path,
+            )
+
         else:
-            logger.info("No valid storage state found. Starting a fresh browser context.")
+            logger.info(
+                "No valid storage state found. "
+                "Starting a fresh browser context."
+            )
 
         try:
             self._context = await self._browser.new_context(
@@ -76,22 +109,35 @@ class ContextManager:
                 storage_state=storage_state,
             )
 
-            logger.success("Context created.")
+            logger.success(
+                "Context created."
+            )
 
             return self._context
 
         except Exception:
-            logger.exception("Failed to create browser context.")
+            logger.exception(
+                "Failed to create browser context."
+            )
             raise
 
-    async def new_page(self) -> Page:
+    async def new_page(
+        self,
+    ) -> Page:
         """
-        Create a new page.
+        Create a new page and automatically
+        attach network capture.
         """
 
-        return await self.context.new_page()
+        page = await self.context.new_page()
 
-    async def stop(self) -> None:
+        await self._capture.attach(page)
+
+        return page
+
+    async def stop(
+        self,
+    ) -> None:
         """
         Save session state and close the browser context.
         """
@@ -100,27 +146,41 @@ class ContextManager:
             return
 
         try:
-            logger.info("Saving browser state...")
+            logger.info(
+                "Saving browser state..."
+            )
 
-            await self._session.save(self._context)
+            await self._session.save(
+                self._context,
+            )
 
         except Exception:
-            logger.exception("Failed to save storage state.")
+            logger.exception(
+                "Failed to save storage state."
+            )
 
         try:
-            logger.info("Closing context...")
+            logger.info(
+                "Closing context..."
+            )
 
             await self._context.close()
 
         except Exception:
-            logger.exception("Failed to close browser context.")
+            logger.exception(
+                "Failed to close browser context."
+            )
 
         finally:
             self._context = None
 
-        logger.success("Context closed.")
+        logger.success(
+            "Context closed."
+        )
 
-    async def __aenter__(self) -> ContextManager:
+    async def __aenter__(
+        self,
+    ) -> ContextManager:
         await self.start()
         return self
 
