@@ -40,20 +40,18 @@ class CaptureRunner:
             and discovered endpoints.
         """
 
-        async with BrowserManager() as browser:
+        async with BrowserManager() as browser, browser.new_context() as context:
 
-            async with browser.new_context() as context:
+            page: Page = await context.new_page()
 
-                page: Page = await context.new_page()
+            await page.goto(
+                url,
+                wait_until="networkidle",
+            )
 
-                await page.goto(
-                    url,
-                    wait_until="networkidle",
-                )
+            #
+            # Ensure endpoint detector is populated
+            #
+            context.capture.process()
 
-                #
-                # Ensure endpoint detector is populated
-                #
-                context.capture.process()
-
-                return context.capture
+            return context.capture

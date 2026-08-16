@@ -39,21 +39,20 @@ class CaptureRunner:
         then return the populated CaptureSession.
         """
 
-        async with BrowserManager() as browser:
-            async with browser.new_context() as context:
+        async with BrowserManager() as browser, browser.new_context() as context:
 
-                capture = CaptureSession()
+            capture = CaptureSession()
 
-                await capture.attach(context.context)
+            await capture.attach(context.context)
 
-                page = await context.new_page()
+            page = await context.new_page()
 
-                await page.goto(
-                    url,
-                    wait_until=wait_until,
-                )
+            await page.goto(
+                url,
+                wait_until=wait_until,
+            )
 
-                # Ensure endpoints are built before returning.
-                capture.process()
+            # Ensure endpoints are built before returning.
+            capture.process()
 
-                return capture
+            return capture
