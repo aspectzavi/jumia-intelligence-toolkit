@@ -87,7 +87,10 @@ class HeaderAdapter:
         performs normalization internally.
         """
 
-        return {header.name: header.value for header in headers}
+        return {
+            header.name: header.value
+            for header in headers
+        }
 
     @staticmethod
     def to_pairs(

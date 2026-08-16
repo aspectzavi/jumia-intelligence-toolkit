@@ -35,25 +35,28 @@ class ApiEndpoint:
 
     description: str | None = None
 
+    #
+    # -------- Intelligence --------
+    #
+
+    status_codes: dict[int, int] = field(default_factory=dict)
+
+    content_types: dict[str, int] = field(default_factory=dict)
+
+    examples: list[Any] = field(default_factory=list)
+
+    confidence: float = 0.0
+
     @property
     def request_count(self) -> int:
-        """
-        Number of captured requests.
-        """
         return len(self.requests)
 
     @property
     def response_count(self) -> int:
-        """
-        Number of captured responses.
-        """
         return len(self.responses)
 
     @property
     def latest_request(self) -> HttpRequest | None:
-        """
-        Most recently added request.
-        """
         if not self.requests:
             return None
 
@@ -61,9 +64,6 @@ class ApiEndpoint:
 
     @property
     def latest_response(self) -> HttpResponse | None:
-        """
-        Most recently added response.
-        """
         if not self.responses:
             return None
 
@@ -73,34 +73,85 @@ class ApiEndpoint:
         self,
         request: HttpRequest,
     ) -> None:
-        """
-        Attach a request to this endpoint.
-        """
         self.requests.append(request)
 
     def add_response(
         self,
         response: HttpResponse,
     ) -> None:
-        """
-        Attach a response to this endpoint.
-        """
         self.responses.append(response)
 
     def add_tag(
         self,
         tag: str,
     ) -> None:
-        """
-        Add a descriptive tag.
-        """
         self.tags.add(tag)
 
-    def to_dict(self) -> dict[str, Any]:
+    #
+    # ---------- Intelligence helpers ----------
+    #
+
+    def add_status_code(
+        self,
+        status_code: int,
+    ) -> None:
+        self.status_codes[status_code] = (
+            self.status_codes.get(status_code, 0) + 1
+        )
+
+    def add_content_type(
+        self,
+        content_type: str | None,
+    ) -> None:
+        if not content_type:
+            return
+
+        content_type = content_type.split(";", 1)[0].strip().lower()
+
+        self.content_types[content_type] = (
+            self.content_types.get(content_type, 0) + 1
+        )
+
+    def add_example(
+        self,
+        payload: Any,
+    ) -> None:
         """
-        Serialize endpoint.
+        Store one example response.
+
+        Limit the number of stored examples so long-running
+        captures do not consume excessive memory.
         """
 
+        if payload is None:
+            return
+
+        if len(self.examples) >= 10:
+            return
+
+        self.examples.append(payload)
+
+    @property
+    def primary_status_code(self) -> int | None:
+        if not self.status_codes:
+            return None
+
+        return max(
+            self.status_codes.items(),
+            key=lambda item: item[1],
+        )[0]
+
+    @property
+    def primary_content_type(self) -> str | None:
+        if not self.content_types:
+            return None
+
+        return max(
+            self.content_types.items(),
+            key=lambda item: item[1],
+        )[0]
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "path": self.path,
             "method": self.method,
@@ -109,14 +160,18 @@ class ApiEndpoint:
             "tags": sorted(self.tags),
             "request_schema": (
                 self.request_schema.to_dict()
-                if self.request_schema is not None
+                if self.request_schema
                 else None
             ),
             "response_schema": (
                 self.response_schema.to_dict()
-                if self.response_schema is not None
+                if self.response_schema
                 else None
             ),
+            "status_codes": self.status_codes,
+            "content_types": self.content_types,
+            "examples": self.examples,
+            "confidence": self.confidence,
             "requests": [
                 request.to_dict()
                 for request in self.requests
@@ -132,9 +187,6 @@ class ApiEndpoint:
         cls,
         data: dict[str, Any],
     ) -> ApiEndpoint:
-        """
-        Deserialize endpoint.
-        """
 
         endpoint = cls(
             path=data["path"],
@@ -159,26 +211,34 @@ class ApiEndpoint:
         )
 
         endpoint.tags.update(
-            data.get(
-                "tags",
-                [],
-            )
+            data.get("tags", [])
+        )
+
+        endpoint.status_codes.update(
+            data.get("status_codes", {})
+        )
+
+        endpoint.content_types.update(
+            data.get("content_types", {})
+        )
+
+        endpoint.examples.extend(
+            data.get("examples", [])
+        )
+
+        endpoint.confidence = data.get(
+            "confidence",
+            0.0,
         )
 
         endpoint.requests.extend(
             HttpRequest.from_dict(item)
-            for item in data.get(
-                "requests",
-                [],
-            )
+            for item in data.get("requests", [])
         )
 
         endpoint.responses.extend(
             HttpResponse.from_dict(item)
-            for item in data.get(
-                "responses",
-                [],
-            )
+            for item in data.get("responses", [])
         )
 
         return endpoint

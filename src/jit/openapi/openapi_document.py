@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -9,12 +10,12 @@ from jit.openapi.openapi_path import OpenApiPath
 @dataclass(slots=True)
 class OpenApiDocument:
     """
-    Represents an OpenAPI 3.1 document.
+    Represents a complete OpenAPI document.
     """
 
-    title: str = "Discovered API"
+    title: str
 
-    version: str = "1.0.0"
+    version: str
 
     openapi: str = "3.1.0"
 
@@ -25,13 +26,13 @@ class OpenApiDocument:
     def add_path(
         self,
         path: str,
-        item: OpenApiPath,
+        openapi_path: OpenApiPath,
     ) -> None:
         """
-        Add or replace a path item.
+        Add or replace a path.
         """
 
-        self.paths[path] = item
+        self.paths[path] = openapi_path
 
     def get_path(
         self,
@@ -45,7 +46,7 @@ class OpenApiDocument:
 
     def to_dict(self) -> dict[str, Any]:
         """
-        Serialize the OpenAPI document.
+        Serialize the document.
         """
 
         return {
@@ -69,28 +70,39 @@ class OpenApiDocument:
         Deserialize an OpenAPI document.
         """
 
+        info = data.get("info", {})
+
         document = cls(
-            title=data["info"]["title"],
-            version=data["info"]["version"],
-            openapi=data.get(
-                "openapi",
-                "3.1.0",
-            ),
+            title=info.get("title", ""),
+            version=info.get("version", ""),
+            openapi=data.get("openapi", "3.1.0"),
         )
 
         for path, value in data.get(
             "paths",
             {},
         ).items():
-            document.paths[path] = OpenApiPath.from_dict(
+            document.add_path(
                 path,
-                value,
+                OpenApiPath.from_dict(
+                    path,
+                    value,
+                ),
             )
 
         return document
 
     def __len__(self) -> int:
         return len(self.paths)
+
+    def __iter__(self) -> Iterator[OpenApiPath]:
+        return iter(self.paths.values())
+
+    def __contains__(
+        self,
+        path: str,
+    ) -> bool:
+        return path in self.paths
 
     def __str__(self) -> str:
         return (
