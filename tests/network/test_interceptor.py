@@ -20,7 +20,7 @@ async def test_attach_registers_request_handler():
 
     page.on.assert_any_call(
         "request",
-        interceptor._handle_request,
+        interceptor._on_request,
     )
 
 
@@ -36,7 +36,7 @@ async def test_attach_registers_response_handler():
 
     page.on.assert_any_call(
         "response",
-        interceptor._handle_response,
+        interceptor._on_response,
     )
 
 
@@ -194,3 +194,57 @@ async def test_response_entity_forwarded(
     recorded = recorder.record_response.call_args.args[0]
 
     assert recorded is entity
+
+
+@pytest.mark.asyncio
+async def test_on_request_tracks_task_until_complete():
+    recorder = Mock()
+
+    interceptor = NetworkInterceptor(recorder)
+
+    request = Mock()
+    request.url = "https://example.com"
+    request.method = "GET"
+    request.resource_type = "fetch"
+    request.all_headers = AsyncMock(return_value={})
+    request.post_data = None
+
+    interceptor._on_request(request)
+
+    assert len(interceptor._pending_tasks) == 1
+
+    await interceptor.drain()
+
+    assert len(interceptor._pending_tasks) == 0
+    recorder.record_request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_drain_waits_for_response_handler_before_returning():
+    recorder = Mock()
+
+    interceptor = NetworkInterceptor(recorder)
+
+    response = Mock()
+    response.request = Mock()
+    response.status = 200
+    response.status_text = "OK"
+    response.url = "https://example.com/api/products"
+    response.all_headers = AsyncMock(
+        return_value={"content-type": "application/json"},
+    )
+    response.body = AsyncMock(return_value=b'{"id": 1}')
+
+    interceptor._on_response(response)
+
+    await interceptor.drain()
+
+    recorder.record_response.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_drain_is_a_no_op_with_no_pending_tasks():
+    interceptor = NetworkInterceptor(Mock())
+
+    # Should return immediately without error.
+    await interceptor.drain()

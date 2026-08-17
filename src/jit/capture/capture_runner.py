@@ -52,6 +52,11 @@ class CaptureRunner:
                 wait_until=wait_until,
             )
 
+            # Wait for in-flight response/request handlers (header and
+            # body reads) to finish before the context closes, or they
+            # race the teardown and silently lose data.
+            await capture.drain()
+
             # Ensure endpoints are built before returning.
             capture.process()
 
