@@ -43,6 +43,16 @@ class CaptureSession:
 
         await self._interceptor.attach(target)
 
+    async def drain(self) -> None:
+        """
+        Wait for all in-flight request/response handlers to finish.
+
+        Call this before the browser context closes to avoid losing
+        response bodies/headers that were still being read.
+        """
+
+        await self._interceptor.drain()
+
     def process(self) -> None:
         """
         Process all captured traffic.
