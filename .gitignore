@@ -69,7 +69,14 @@ captures/
 
 # Keep empty runtime directories
 !data/**/.gitkeep
-=======
+
+# Playwright session/auth state (contains live cookies/tokens)
+data/playwright/storage_state.json
+
+# ========================================
+# Build / Tooling
+# ========================================
+
 # Distribution
 build/
 dist/

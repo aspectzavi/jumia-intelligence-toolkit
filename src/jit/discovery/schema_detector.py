@@ -1,14 +1,22 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from jit.entities.schema import Schema
 from jit.entities.schema_field import SchemaField
+from jit.inference.schema_inferer import SchemaInferer
+from jit.inference.schema_merger import SchemaMerger
+from jit.inference.type_inferer import TypeInferer
 
 
 class SchemaDetector:
     """
-    Infers a Schema from JSON-like data.
+    Compatibility wrapper for schema inference.
+
+    This class preserves the original discovery-layer schema
+    representation while delegating inference to the newer
+    inference package.
     """
 
     @classmethod
@@ -17,96 +25,20 @@ class SchemaDetector:
         data: Any,
     ) -> Schema:
         """
-        Build a Schema from a dictionary.
+        Infer a Schema from arbitrary JSON-like data.
         """
 
-        schema = Schema()
+        if not isinstance(data, Mapping):
+            return Schema()
 
-        if not isinstance(data, dict):
-            return schema
+        schema = SchemaInferer.infer(data)
 
-        for name, value in data.items():
-            schema.add_field(
-                cls._detect_field(
-                    name,
-                    value,
-                )
-            )
+        cls._convert_schema(
+            schema,
+            data,
+        )
 
         return schema
-
-    @classmethod
-    def _detect_field(
-        cls,
-        name: str,
-        value: Any,
-    ) -> SchemaField:
-        """
-        Infer a SchemaField from a value.
-        """
-
-        if value is None:
-            return SchemaField(
-                name=name,
-                field_type="null",
-            )
-
-        if isinstance(value, bool):
-            return SchemaField(
-                name=name,
-                field_type="boolean",
-            )
-
-        if isinstance(value, int):
-            return SchemaField(
-                name=name,
-                field_type="integer",
-            )
-
-        if isinstance(value, float):
-            return SchemaField(
-                name=name,
-                field_type="number",
-            )
-
-        if isinstance(value, str):
-            return SchemaField(
-                name=name,
-                field_type="string",
-            )
-
-        if isinstance(value, dict):
-            field = SchemaField(
-                name=name,
-                field_type="object",
-            )
-
-            nested = cls.detect(value)
-
-            for child in nested:
-                field.add_child(child)
-
-            return field
-
-        if isinstance(value, list):
-            field = SchemaField(
-                name=name,
-                field_type="array",
-            )
-
-            if value:
-                child = cls._detect_field(
-                    "item",
-                    value[0],
-                )
-                field.add_child(child)
-
-            return field
-
-        return SchemaField(
-            name=name,
-            field_type="unknown",
-        )
 
     @classmethod
     def merge(
@@ -116,51 +48,133 @@ class SchemaDetector:
     ) -> Schema:
         """
         Merge two schemas into one.
-
-        Fields present in only one schema become optional.
-        Existing field definitions are preserved.
         """
 
-        merged = Schema()
-
-        left_fields = {
-            field.name: field
-            for field in left
-        }
-
-        right_fields = {
-            field.name: field
-            for field in right
-        }
-
-        all_names = (
-            left_fields.keys()
-            | right_fields.keys()
+        return SchemaMerger.merge(
+            left,
+            right,
         )
 
-        for name in sorted(all_names):
+    @classmethod
+    def _convert_schema(
+        cls,
+        schema: Schema,
+        payload: Mapping[str, Any],
+    ) -> None:
+        """
+        Convert inferred schemas into the legacy discovery format.
+        """
 
-            if name in left_fields and name in right_fields:
+        for field in schema:
+            cls._convert_field(
+                field,
+                payload.get(field.name),
+            )
 
-                field = left_fields[name]
+    @classmethod
+    def _convert_field(
+        cls,
+        field: SchemaField,
+        value: Any,
+    ) -> None:
+        """
+        Recursively convert array/object fields.
+        """
 
-                field.required = (
-                    left_fields[name].required
-                    and right_fields[name].required
+        #
+        # Arrays
+        #
+        if field.field_type == "array":
+
+            #
+            # Primitive array.
+            #
+            if not field.children:
+
+                item_type = "unknown"
+
+                if (
+                    isinstance(value, list)
+                    and value
+                ):
+                    item_type = TypeInferer.infer(
+                        value[0],
+                    )
+
+                field.children.append(
+                    SchemaField(
+                        name="item",
+                        field_type=item_type,
+                    )
                 )
 
-                merged.add_field(field)
+                return
 
-            elif name in left_fields:
+            #
+            # Already wrapped.
+            #
+            if (
+                len(field.children) == 1
+                and field.children[0].name == "item"
+            ):
+                child_value = None
 
-                field = left_fields[name]
-                field.required = False
-                merged.add_field(field)
+                if (
+                    isinstance(value, list)
+                    and value
+                ):
+                    child_value = value[0]
 
-            else:
+                cls._convert_field(
+                    field.children[0],
+                    child_value,
+                )
 
-                field = right_fields[name]
-                field.required = False
-                merged.add_field(field)
+                return
 
-        return merged
+            #
+            # Wrap array-of-object fields.
+            #
+            item = SchemaField(
+                name="item",
+                field_type="object",
+            )
+
+            item.children.extend(field.children)
+
+            field.children = [item]
+
+            child_value = None
+
+            if (
+                isinstance(value, list)
+                and value
+            ):
+                child_value = value[0]
+
+            cls._convert_field(
+                item,
+                child_value,
+            )
+
+            return
+
+        #
+        # Objects
+        #
+        if field.field_type == "object":
+
+            mapping = value if isinstance(value, Mapping) else {}
+
+            for child in field.children:
+                cls._convert_field(
+                    child,
+                    mapping.get(child.name),
+                )
+
+            return
+
+        #
+        # Primitive fields require no conversion.
+        #
+        return
