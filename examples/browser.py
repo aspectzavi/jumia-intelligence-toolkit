@@ -6,15 +6,13 @@ from jit.config.settings import settings
 
 async def main():
 
-    async with BrowserManager() as browser:
+    async with BrowserManager() as browser, browser.new_context() as context:
 
-        async with browser.new_context() as context:
+        page = await context.new_page()
 
-            page = await context.new_page()
+        await page.goto(settings.base_url)
 
-            await page.goto(settings.base_url)
-
-            await page.wait_for_timeout(5000)
+        await page.wait_for_timeout(5000)
 
 
 if __name__ == "__main__":
