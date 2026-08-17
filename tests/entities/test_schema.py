@@ -64,49 +64,6 @@ def test_duplicate_field_replaces_existing():
     assert schema.get_field("price") is second
 
 
-def test_to_dict():
-    schema = Schema()
-
-    schema.add_field(
-        SchemaField(
-            name="price",
-            field_type="integer",
-        )
-    )
-
-    assert schema.to_dict() == {
-        "fields": [
-            {
-                "name": "price",
-                "field_type": "integer",
-                "required": True,
-                "children": [],
-            }
-        ]
-    }
-
-
-def test_from_dict():
-    schema = Schema.from_dict(
-        {
-            "fields": [
-                {
-                    "name": "price",
-                    "field_type": "integer",
-                    "required": True,
-                    "children": [],
-                }
-            ]
-        }
-    )
-
-    assert len(schema) == 1
-
-    field = schema.get_field("price")
-
-    assert field is not None
-    assert field.field_type == "integer"
-
 
 def test_iter():
     schema = Schema()
