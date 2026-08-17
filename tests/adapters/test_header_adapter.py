@@ -128,7 +128,11 @@ def test_clone():
     assert clone is not original
     assert len(clone) == len(original)
 
-    assert clone.get("content-type") == original.get("content-type")
+    assert clone.get(
+        "content-type"
+    ) == original.get(
+        "content-type"
+    )
 
 
 def test_serialize():
@@ -168,6 +172,10 @@ def test_deserialize():
     assert isinstance(collection, HeaderCollection)
     assert len(collection) == 2
 
-    assert collection.get("content-type") == "application/json"
+    assert collection.get(
+        "content-type"
+    ) == "application/json"
 
-    assert collection.get("accept") == "*/*"
+    assert collection.get(
+        "accept"
+    ) == "*/*"
